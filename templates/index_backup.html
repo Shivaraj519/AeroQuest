@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AeroQuest - Advanced Global AQI Hub</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i data-lucide="wind" class="brand-icon"></i>
+                <span class="brand-text">AeroQuest</span>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-view="dashboard">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-view="analytics">
+                    <i data-lucide="line-chart"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="#" class="nav-item" data-view="map">
+                    <i data-lucide="map"></i>
+                    <span>Interactive Map</span>
+                </a>
+                <a href="#" class="nav-item" data-view="compare">
+                    <i data-lucide="git-compare"></i>
+                    <span>Compare Cities</span>
+                </a>
+                <a href="#" class="nav-item" data-view="favorites">
+                    <i data-lucide="star"></i>
+                    <span>Saved Cities</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <button id="theme-toggle" class="theme-toggle-btn">
+                    <i data-lucide="sun" class="sun-icon"></i>
+                    <i data-lucide="moon" class="moon-icon"></i>
+                    <span class="theme-text">Toggle Theme</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- Top Search and Info Bar -->
+            <header class="top-bar">
+                <div class="search-container">
+                    <div class="search-input-wrapper">
+                        <i data-lucide="search" class="search-icon"></i>
+                        <input type="text" id="city-search" placeholder="Search for any city in the world..." autocomplete="off">
+                        <div id="loading-spinner" class="spinner hidden"></div>
+                    </div>
+                    <!-- Autocomplete Dropdown -->
+                    <div id="search-suggestions" class="search-suggestions hidden"></div>
+                </div>
+
+                <div class="active-city-info">
+                    <span id="current-location-display">Loading default city...</span>
+                    <button id="favorite-btn" class="favorite-action-btn" title="Add to favorites">
+                        <i data-lucide="star" class="fav-icon"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Loading View Overlay -->
+            <div id="page-loader" class="page-loader hidden">
+                <div class="spinner large"></div>
+                <p>Retrieving real-time atmospheric data...</p>
+            </div>
+
+            <!-- Dashboard View -->
+            <section id="dashboard-view" class="view-panel">
+                <div class="dashboard-grid">
+                    
+                    <!-- Hero AQI Indicator -->
+                    <div class="card glass hero-aqi-card">
+                        <h3>Air Quality Index</h3>
+                        <div class="aqi-gauge-container">
+                            <svg class="aqi-gauge" viewBox="0 0 100 100">
+                                <circle class="gauge-bg" cx="50" cy="50" r="42" fill="none" stroke-width="8"></circle>
+                                <circle id="gauge-fill" class="gauge-fill" cx="50" cy="50" r="42" fill="none" stroke-dasharray="264" stroke-dashoffset="264" stroke-linecap="round" stroke-width="8" transform="rotate(-90 50 50)"></circle>
+                            </svg>
+                            <div class="aqi-value-wrapper">
+                                <span id="aqi-value">--</span>
+                                <span class="aqi-label">US AQI</span>
+                            </div>
+                        </div>
+                        <div class="aqi-status-badge" id="aqi-status-text">--</div>
+                        <p class="aqi-desc" id="aqi-status-desc">Search for a city or choose a favorite to view current air quality information.</p>
+                    </div>
+
+                    <!-- Weather context card -->
+                    <div class="card glass weather-card">
+                        <h3>Weather Conditions</h3>
+                        <div class="weather-grid">
+                            <div class="weather-main">
+                                <i id="weather-icon" data-lucide="cloud-sun" class="weather-large-icon"></i>
+                                <div class="temp-wrapper">
+                                    <span id="weather-temp">--</span><span class="temp-unit">°C</span>
+                                </div>
+                                <span id="weather-condition-text" class="weather-desc">Clear Sky</span>
+                            </div>
+                            <div class="weather-details">
+                                <div class="weather-detail-item">
+                                    <i data-lucide="thermometer"></i>
+                                    <div>
+                                        <span class="detail-label">Feels Like</span>
+                                        <span id="weather-feels-like" class="detail-val">--</span>
+                                    </div>
+                                </div>
+                                <div class="weather-detail-item">
+                                    <i data-lucide="droplets"></i>
+                                    <div>
+                                        <span class="detail-label">Humidity</span>
+                                        <span id="weather-humidity" class="detail-val">--</span>
+                                    </div>
+                                </div>
+                                <div class="weather-detail-item">
+                                    <i data-lucide="wind"></i>
+                                    <div>
+                                        <span class="detail-label">Wind Speed</span>
+                                        <span id="weather-wind-speed" class="detail-val">--</span>
+                                    </div>
+                                </div>
+                                <div class="weather-detail-item">
+                                    <i data-lucide="compass" id="wind-direction-icon"></i>
+                                    <div>
+                                        <span class="detail-label">Wind Direction</span>
+                                        <span id="weather-wind-direction" class="detail-val">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Health Recommendations Card -->
+                    <div class="card glass health-advisory-card">
+                        <h3>Health & Activity Recommendations</h3>
+                        <div class="tabs-container">
+                            <div class="tab-buttons">
+                                <button class="tab-btn active" data-tab="tab-general">General Public</button>
+                                <button class="tab-btn" data-tab="tab-sensitive">Sensitive Groups</button>
+                                <button class="tab-btn" data-tab="tab-outdoors">Outdoors</button>
+                                <button class="tab-btn" data-tab="tab-ventilation">Home Ventilation</button>
+                            </div>
+                            <div class="tab-contents">
+                                <div id="tab-general" class="tab-pane active">
+                                    <div class="advisory-item">
+                                        <i data-lucide="check-circle" class="adv-icon"></i>
+                                        <p id="adv-general-text">Select a city to retrieve custom health guidelines.</p>
+                                    </div>
+                                </div>
+                                <div id="tab-sensitive" class="tab-pane">
+                                    <div class="advisory-item">
+                                        <i data-lucide="heart" class="adv-icon"></i>
+                                        <p id="adv-sensitive-text">Select a city to retrieve guidelines for vulnerable populations.</p>
+                                    </div>
+                                </div>
+                                <div id="tab-outdoors" class="tab-pane">
+                                    <div class="advisory-item">
+                                        <i data-lucide="bike" class="adv-icon"></i>
+                                        <p id="adv-outdoors-text">Select a city to retrieve outdoor activity advice.</p>
+                                    </div>
+                                </div>
+                                <div id="tab-ventilation" class="tab-pane">
+                                    <div class="advisory-item">
+                                        <i data-lucide="home" class="adv-icon"></i>
+                                        <p id="adv-ventilation-text">Select a city to retrieve indoor ventilation recommendations.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pollutant Breakdown Grid -->
+                    <div class="pollutants-section">
+                        <h3>Key Pollutants Concentration</h3>
+                        <div class="pollutants-grid">
+                            
+                            <!-- PM 2.5 -->
+                            <div class="card glass pollutant-card">
+                                <div class="pollutant-header">
+                                    <span class="pollutant-name">PM<sub>2.5</sub></span>
+                                    <span class="pollutant-fullname">Fine Particles</span>
+                                </div>
+                                <div class="pollutant-content">
+                                    <div class="pollutant-val-wrapper">
+                                        <span id="val-pm2_5" class="pollutant-value">--</span>
+                                        <span class="pollutant-unit">µg/m³</span>
+                                    </div>
+                                    <div class="who-limit-bar">
+                                        <div class="limit-fill" id="bar-pm2_5"></div>
+                                    </div>
+                                    <span class="who-label" id="who-pm2_5">WHO Limit: 15 µg/m³ (24h)</span>
+                                </div>
+                            </div>
+
+                            <!-- PM 10 -->
+                            <div class="card glass pollutant-card">
+                                <div class="pollutant-header">
+                                    <span class="pollutant-name">PM<sub>10</sub></span>
+                                    <span class="pollutant-fullname">Coarse Particles</span>
+                                </div>
+                                <div class="pollutant-content">
+                                    <div class="pollutant-val-wrapper">
+                                        <span id="val-pm10" class="pollutant-value">--</span>
+                                        <span class="pollutant-unit">µg/m³</span>
+                                    </div>
+                                    <div class="who-limit-bar">
+                                        <div class="limit-fill" id="bar-pm10"></div>
+                                    </div>
+                                    <span class="who-label" id="who-pm10">WHO Limit: 45 µg/m³ (24h)</span>
+                                </div>
+                            </div>
+
+                            <!-- Nitrogen Dioxide (NO2) -->
+                            <div class="card glass pollutant-card">
+                                <div class="pollutant-header">
+                                    <span class="pollutant-name">NO<sub>2</sub></span>
+                                    <span class="pollutant-fullname">Nitrogen Dioxide</span>
+                                </div>
+                                <div class="pollutant-content">
+                                    <div class="pollutant-val-wrapper">
+                                        <span id="val-no2" class="pollutant-value">--</span>
+                                        <span class="pollutant-unit">µg/m³</span>
+                                    </div>
+                                    <div class="who-limit-bar">
+                                        <div class="limit-fill" id="bar-no2"></div>
+                                    </div>
+                                    <span class="who-label" id="who-no2">WHO Limit: 25 µg/m³ (24h)</span>
+                                </div>
+                            </div>
+
+                            <!-- Ozone (O3) -->
+                            <div class="card glass pollutant-card">
+                                <div class="pollutant-header">
+                                    <span class="pollutant-name">O<sub>3</sub></span>
+                                    <span class="pollutant-fullname">Ozone</span>
+                                </div>
+                                <div class="pollutant-content">
+                                    <div class="pollutant-val-wrapper">
+                                        <span id="val-o3" class="pollutant-value">--</span>
+                                        <span class="pollutant-unit">µg/m³</span>
+                                    </div>
+                                    <div class="who-limit-bar">
+                                        <div class="limit-fill" id="bar-o3"></div>
+                                    </div>
+                                    <span class="who-label" id="who-o3">WHO Limit: 100 µg/m³ (8h)</span>
+                                </div>
+                            </div>
+
+                            <!-- Carbon Monoxide (CO) -->
+                            <div class="card glass pollutant-card">
+                                <div class="pollutant-header">
+                                    <span class="pollutant-name">CO</span>
+                                    <span class="pollutant-fullname">Carbon Monoxide</span>
+                                </div>
+                                <div class="pollutant-content">
+                                    <div class="pollutant-val-wrapper">
+                                        <span id="val-co" class="pollutant-value">--</span>
+                                        <span class="pollutant-unit">mg/m³</span>
+                                    </div>
+                                    <div class="who-limit-bar">
+                                        <div class="limit-fill" id="bar-co"></div>
+                                    </div>
+                                    <span class="who-label" id="who-co">WHO Limit: 4 mg/m³ (24h)</span>
+                                </div>
+                            </div>
+
+                            <!-- Sulphur Dioxide (SO2) -->
+                            <div class="card glass pollutant-card">
+                                <div class="pollutant-header">
+                                    <span class="pollutant-name">SO<sub>2</sub></span>
+                                    <span class="pollutant-fullname">Sulphur Dioxide</span>
+                                </div>
+                                <div class="pollutant-content">
+                                    <div class="pollutant-val-wrapper">
+                                        <span id="val-so2" class="pollutant-value">--</span>
+                                        <span class="pollutant-unit">µg/m³</span>
+                                    </div>
+                                    <div class="who-limit-bar">
+                                        <div class="limit-fill" id="bar-so2"></div>
+                                    </div>
+                                    <span class="who-label" id="who-so2">WHO Limit: 40 µg/m³ (24h)</span>
+                                </div>
+                            </div>
+
+                            <!-- UV Index -->
+                            <div class="card glass pollutant-card">
+                                <div class="pollutant-header">
+                                    <span class="pollutant-name">UV Index</span>
+                                    <span class="pollutant-fullname">Solar Radiation</span>
+                                </div>
+                                <div class="pollutant-content">
+                                    <div class="pollutant-val-wrapper">
+                                        <span id="val-uv" class="pollutant-value">--</span>
+                                        <span class="pollutant-unit">Index</span>
+                                    </div>
+                                    <div class="who-limit-bar">
+                                        <div class="limit-fill" id="bar-uv"></div>
+                                    </div>
+                                    <span class="who-label" id="who-uv">Scale: 0 (Low) to 11+ (Extreme)</span>
+                                </div>
+                            </div>
+
+                            <!-- Dust Concentration -->
+                            <div class="card glass pollutant-card">
+                                <div class="pollutant-header">
+                                    <span class="pollutant-name">Dust</span>
+                                    <span class="pollutant-fullname">Mineral Aerosols</span>
+                                </div>
+                                <div class="pollutant-content">
+                                    <div class="pollutant-val-wrapper">
+                                        <span id="val-dust" class="pollutant-value">--</span>
+                                        <span class="pollutant-unit">µg/m³</span>
+                                    </div>
+                                    <div class="who-limit-bar">
+                                        <div class="limit-fill" id="bar-dust"></div>
+                                    </div>
+                                    <span class="who-label" id="who-dust">Atmospheric Dust Burden</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics View -->
+            <section id="analytics-view" class="view-panel hidden">
+                <div class="analytics-layout">
+                    <div class="card glass chart-card">
+                        <div class="chart-header">
+                            <h3>7-Day Air Quality Trend</h3>
+                            <div class="chart-filters" id="chart-parameter-toggles">
+                                <button class="filter-btn active" data-param="us_aqi">AQI</button>
+                                <button class="filter-btn" data-param="pm2_5">PM2.5</button>
+                                <button class="filter-btn" data-param="pm10">PM10</button>
+                                <button class="filter-btn" data-param="ozone">Ozone</button>
+                                <button class="filter-btn" data-param="nitrogen_dioxide">NO2</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="trend-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="analytics-summary-grid">
+                        <div class="card glass stat-card">
+                            <i data-lucide="arrow-up-circle" class="stat-icon max-aqi-color"></i>
+                            <div class="stat-info">
+                                <span class="stat-label">Highest AQI</span>
+                                <span id="stat-max-aqi" class="stat-value">--</span>
+                                <span id="stat-max-time" class="stat-time">--</span>
+                            </div>
+                        </div>
+                        <div class="card glass stat-card">
+                            <i data-lucide="arrow-down-circle" class="stat-icon min-aqi-color"></i>
+                            <div class="stat-info">
+                                <span class="stat-label">Lowest AQI</span>
+                                <span id="stat-min-aqi" class="stat-value">--</span>
+                                <span id="stat-min-time" class="stat-time">--</span>
+                            </div>
+                        </div>
+                        <div class="card glass stat-card">
+                            <i data-lucide="activity" class="stat-icon avg-aqi-color"></i>
+                            <div class="stat-info">
+                                <span class="stat-label">7-Day Average AQI</span>
+                                <span id="stat-avg-aqi" class="stat-value">--</span>
+                                <span id="stat-condition-freq" class="stat-time">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Map View -->
+            <section id="map-view" class="view-panel hidden">
+                <div class="map-layout">
+                    <div class="card glass map-card">
+                        <h3>Interactive GIS Air Quality Map</h3>
+                        <div id="aqi-map" class="map-canvas"></div>
+                    </div>
+                    <div class="card glass map-legend-card">
+                        <h4>AQI Index Guide</h4>
+                        <div class="legend-scale">
+                            <div class="legend-item"><span class="legend-color c-good"></span><span>0 - 50</span><span>Good</span></div>
+                            <div class="legend-item"><span class="legend-color c-moderate"></span><span>51 - 100</span><span>Moderate</span></div>
+                            <div class="legend-item"><span class="legend-color c-sensitive"></span><span>101 - 150</span><span>Unhealthy (Sensitive)</span></div>
+                            <div class="legend-item"><span class="legend-color c-unhealthy"></span><span>151 - 200</span><span>Unhealthy</span></div>
+                            <div class="legend-item"><span class="legend-color c-veryunhealthy"></span><span>201 - 300</span><span>Very Unhealthy</span></div>
+                            <div class="legend-item"><span class="legend-color c-hazardous"></span><span>301+</span><span>Hazardous</span></div>
+                        </div>
+                        <div class="map-coordinates-box">
+                            <i data-lucide="map-pin"></i>
+                            <div>
+                                <span class="lbl">Currently Focused On</span>
+                                <span id="map-focused-coords" class="val">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Compare Cities View -->
+            <section id="compare-view" class="view-panel hidden">
+                <div class="compare-layout">
+                    <div class="card glass compare-search-card">
+                        <h3>Compare Two Cities</h3>
+                        <div class="compare-forms-grid">
+                            <div class="compare-form-group">
+                                <label for="compare-city-a">Select Base City (City A)</label>
+                                <div class="search-input-wrapper">
+                                    <i data-lucide="search"></i>
+                                    <input type="text" id="compare-city-a" placeholder="Search City A..." autocomplete="off">
+                                    <div id="spinner-a" class="spinner hidden"></div>
+                                </div>
+                                <div id="suggestions-a" class="search-suggestions hidden"></div>
+                                <div class="selected-compare-tag hidden" id="tag-city-a"></div>
+                            </div>
+                            
+                            <div class="compare-vs-badge">VS</div>
+
+                            <div class="compare-form-group">
+                                <label for="compare-city-b">Select Comparison City (City B)</label>
+                                <div class="search-input-wrapper">
+                                    <i data-lucide="search"></i>
+                                    <input type="text" id="compare-city-b" placeholder="Search City B..." autocomplete="off">
+                                    <div id="spinner-b" class="spinner hidden"></div>
+                                </div>
+                                <div id="suggestions-b" class="search-suggestions hidden"></div>
+                                <div class="selected-compare-tag hidden" id="tag-city-b"></div>
+                            </div>
+                        </div>
+                        <button id="compare-trigger-btn" class="compare-btn" disabled>Compare Atmosphere</button>
+                    </div>
+
+                    <!-- Comparison Results Dashboard (hidden initially) -->
+                    <div id="compare-results" class="compare-results-container hidden">
+                        <div class="compare-cards-grid">
+                            <!-- City A Summary -->
+                            <div class="card glass compare-summary-card" id="card-compare-a">
+                                <h4 id="compare-name-a">City A</h4>
+                                <div class="compare-aqi-badge" id="compare-aqi-a">--</div>
+                                <div class="compare-aqi-status" id="compare-status-a">--</div>
+                                <hr>
+                                <div class="compare-stat-row"><span>Temperature</span><span id="compare-temp-a">--</span></div>
+                                <div class="compare-stat-row"><span>Humidity</span><span id="compare-hum-a">--</span></div>
+                                <div class="compare-stat-row"><span>Wind</span><span id="compare-wind-a">--</span></div>
+                                <div class="compare-stat-row"><span>PM2.5</span><span id="compare-pm25-a">--</span></div>
+                                <div class="compare-stat-row"><span>PM10</span><span id="compare-pm10-a">--</span></div>
+                                <div class="compare-stat-row"><span>Ozone (O3)</span><span id="compare-o3-a">--</span></div>
+                            </div>
+
+                            <!-- Comparison Verdict -->
+                            <div class="card glass verdict-card">
+                                <i data-lucide="scale" class="scale-icon"></i>
+                                <h4>Verdict</h4>
+                                <p id="comparison-verdict-text">Configure both cities to run comparison analytics.</p>
+                            </div>
+
+                            <!-- City B Summary -->
+                            <div class="card glass compare-summary-card" id="card-compare-b">
+                                <h4 id="compare-name-b">City B</h4>
+                                <div class="compare-aqi-badge" id="compare-aqi-b">--</div>
+                                <div class="compare-aqi-status" id="compare-status-b">--</div>
+                                <hr>
+                                <div class="compare-stat-row"><span>Temperature</span><span id="compare-temp-b">--</span></div>
+                                <div class="compare-stat-row"><span>Humidity</span><span id="compare-hum-b">--</span></div>
+                                <div class="compare-stat-row"><span>Wind</span><span id="compare-wind-b">--</span></div>
+                                <div class="compare-stat-row"><span>PM2.5</span><span id="compare-pm25-b">--</span></div>
+                                <div class="compare-stat-row"><span>PM10</span><span id="compare-pm10-b">--</span></div>
+                                <div class="compare-stat-row"><span>Ozone (O3)</span><span id="compare-o3-b">--</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Comparison Forecast Chart -->
+                        <div class="card glass compare-chart-card">
+                            <h3>Comparative 7-Day Forecast (US AQI)</h3>
+                            <div class="chart-container">
+                                <canvas id="compare-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Saved Cities View -->
+            <section id="favorites-view" class="view-panel hidden">
+                <div class="favorites-layout">
+                    <div class="favorites-header">
+                        <h3>Your Saved Locations</h3>
+                        <p>Track air pollution for multiple cities in real time.</p>
+                    </div>
+                    
+                    <div id="favorites-grid" class="favorites-grid">
+                        <!-- Dynamically generated bookmarked cities -->
+                        <div class="no-favorites" id="no-favorites-msg">
+                            <i data-lucide="star-off"></i>
+                            <p>No locations saved yet. Click the star icon on the top dashboard bar to bookmark cities.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Core Application JS -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
