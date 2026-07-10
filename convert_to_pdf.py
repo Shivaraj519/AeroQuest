@@ -297,51 +297,6 @@ def generate_pdf():
     pdf.set_xy(10, y_start + 165)
     pdf.set_font("Courier", "", 8)
     
-    code_snippet = (
-        "@app.route('/api/air-quality')\n"
-        "def get_air_quality():\n"
-        "    lat = request.args.get('latitude')\n"
-        "    lon = request.args.get('longitude')\n"
-        "    waqi_token = request.args.get('token', '').strip() or 'demo'\n"
-        "    if not lat or not lon: return jsonify({'error': 'Missing coordinates'}), 400\n"
-        "    try:\n"
-        "        # 1. Fetch Air Quality data from Open-Meteo\n"
-        "        aqi_url = f'https://air-quality-api.open-meteo.com/v1/air-quality?latitude={lat}&longitude={lon}&current=us_aqi,pm2_5,pm10,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone'\n"
-        "        aqi_data = requests.get(aqi_url, timeout=10).json()\n"
-        "        \n"
-        "        # 2. Fetch current weather data from Open-Meteo\n"
-        "        weather_url = f'https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m'\n"
-        "        weather_data = requests.get(weather_url, timeout=10).json()\n"
-        "        \n"
-        "        # 3. Fetch WAQI Ground-Station data & run Location Sanity Check\n"
-        "        waqi_aqi, station_name = None, None\n"
-        "        waqi_url = f'https://api.waqi.info/feed/geo:{lat};{lon}/?token={waqi_token}'\n"
-        "        waqi_response = requests.get(waqi_url, timeout=5)\n"
-        "        if waqi_response.status_code == 200:\n"
-        "            waqi_json = waqi_response.json()\n"
-        "            if waqi_json.get('status') == 'ok':\n"
-        "                waqi_d = waqi_json.get('data', {})\n"
-        "                station_geo = waqi_d.get('city', {}).get('geo')\n"
-        "                is_redirect = False\n"
-        "                if station_geo and len(station_geo) >= 2:\n"
-        "                    s_lat, s_lon = float(station_geo[0]), float(station_geo[1])\n"
-        "                    if abs(float(lat) - s_lat) > 2.0 or abs(float(lon) - s_lon) > 2.0:\n"
-        "                        is_redirect = True\n"
-        "                if not is_redirect:\n"
-        "                    waqi_aqi = waqi_d.get('aqi')\n"
-        "                    station_name = waqi_d.get('city', {}).get('name')\n"
-        "        \n"
-        "        return jsonify({\n"
-        "            'latitude': float(lat), 'longitude': float(lon),\n"
-        "            'current_aqi': aqi_data.get('current', {}),\n"
-        "            'current_weather': weather_data.get('current', {}),\n"
-        "            'waqi_aqi': waqi_aqi, 'station_name': station_name\n"
-        "        })\n"
-        "    except Exception as e:\n"
-        "        return jsonify({'error': str(e)}), 500"
-    )
-    pdf.multi_cell(0, 4, code_snippet)
-
     # ----------------------------------------------------
     # PAGE 6: CHAPTER 3
     # ----------------------------------------------------
