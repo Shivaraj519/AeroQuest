@@ -32,15 +32,16 @@ def generate_pdf():
     pdf.cell(0, 8, "AEROQUEST:", align="C", new_x="LMARGIN", new_y="NEXT")
     pdf.cell(0, 8, "GLOBAL AIR QUALITY & WEATHER ANALYTICS HUB", align="C", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(5)
+    pdf.set_font("Helvetica", "BI", 12)  # Bold-Italic to highlight PYTHON
+    pdf.cell(0, 6, "A PYTHON Web Application for Real-Time", align="C", new_x="LMARGIN", new_y="NEXT")
     pdf.set_font("Helvetica", "I", 11)
-    pdf.cell(0, 6, "A Python & JavaScript Web Application for Real-Time", align="C", new_x="LMARGIN", new_y="NEXT")
     pdf.cell(0, 6, "Atmospheric Monitoring and Health Advisories", align="C", new_x="LMARGIN", new_y="NEXT")
     
     pdf.ln(20)
     pdf.set_font("Helvetica", "", 11)
     pdf.cell(0, 6, "Submitted in partial fulfilment of the requirements for", align="C", new_x="LMARGIN", new_y="NEXT")
-    pdf.set_font("Helvetica", "B", 11)
-    pdf.cell(0, 6, "Course: 25BEphy104 (Python Programming)", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.set_font("Helvetica", "B", 12)
+    pdf.cell(0, 8, "Course: 25BEphy104 (PYTHON Programming)", align="C", new_x="LMARGIN", new_y="NEXT")
     
     pdf.ln(15)
     pdf.set_font("Helvetica", "", 11)
@@ -74,7 +75,7 @@ def generate_pdf():
     pdf.set_font("Helvetica", "", 11)
     
     abstract_p1 = (
-        "The AeroQuest Air Quality Hub is a Python-based web application designed to solve one of the "
+        "The AeroQuest Air Quality Hub is a PYTHON-based web application designed to solve one of the "
         "most critical environmental health challenges: lack of public access to real-time atmospheric data. "
         "Air pollution is a major risk factor for respiratory illness. Many existing weather tools "
         "lack granular ground-station readings, making it difficult for the public and sensitive groups "
@@ -144,7 +145,7 @@ def generate_pdf():
     intro2 = (
         "This project is motivated by the need for an automated, interactive, and intelligent "
         "atmospheric diagnostic dashboard. AeroQuest acts as a real-time monitor by connecting "
-        "a Flask-based Python backend to open-source geocoding, weather, and air quality APIs. "
+        "a Flask-based PYTHON backend to open-source geocoding, weather, and air quality APIs. "
         "Users can query any city globally, view local conditions on a custom dashboard, save "
         "preferred locations, map spatial data in real time, and contrast atmospheric states "
         "across multiple cities. This bridges the gap between raw scientific measurements and "
@@ -174,7 +175,7 @@ def generate_pdf():
         "CSS3, and JavaScript (ES6). It utilizes Leaflet.js for GIS mapping, Chart.js for forecast "
         "comparisons, and Lucide Icons. It makes asynchronous AJAX fetches to backend API endpoints.\n"
         "- Backend Controller (Flask): Serves backend routes, handles external API communications, "
-        "and coordinates database reads/writes.\n"
+        "and coordinates database reads/writes in PYTHON.\n"
         "- Database Module (database.py): Uses SQLite to manage two tables: 'favorites' (for bookmarked "
         "cities) and 'search_history' (for recent queries).\n"
         "- External APIs Blending Layer:\n"
