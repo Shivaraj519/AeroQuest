@@ -73,41 +73,24 @@ def generate_pdf():
     pdf.ln(10)
     pdf.set_font("Helvetica", "", 11)
     
-    abstract_text1 = (
-        "Air pollution represents one of the most critical environmental health risks of the "
-        "modern era, causing millions of respiratory illnesses and premature deaths globally. "
-        "To safeguard public health, individuals need immediate access to accurate, localized "
-        "air quality and meteorological data. However, existing weather apps often lack granular "
-        "ground-station readings or omit vital health recommendations."
+    abstract_p1 = (
+        "The AeroQuest Air Quality Hub is a Python-based web application designed to solve one of the "
+        "most critical environmental health challenges: lack of public access to real-time atmospheric data. "
+        "Air pollution is a major risk factor for respiratory illness. Many existing weather tools "
+        "lack granular ground-station readings, making it difficult for the public and sensitive groups "
+        "to plan outdoor activities or home ventilation."
     )
-    pdf.multi_cell(0, 6, abstract_text1)
+    pdf.multi_cell(0, 6, abstract_p1)
     pdf.ln(6)
     
-    abstract_text2 = (
-        "AeroQuest is a Python & JavaScript web application designed to solve this challenge by "
-        "integrating live ground-station data with global weather forecast models. The system "
-        "fetches real-time Air Quality Index (AQI) readings from the World Air Quality Index (WAQI) "
-        "API and meteorological/pollutant forecast data from the Open-Meteo API. Built with a "
-        "Flask backend and a modern glassmorphic frontend, the dashboard includes:\n\n"
-        "1. WHO Exceedance Warnings: An automated analytics panel checking PM2.5, PM10, NO2, O3, "
-        "SO2, and CO levels against daily World Health Organization safety guidelines.\n"
-        "2. Weather-AQI Correlation Engine: A logic analyzer explaining how wind patterns, "
-        "relative humidity, and heat index trap or disperse local pollutants.\n"
-        "3. Cleanest City Leaderboard: A sorting system ranking favorited cities from cleanest "
-        "to most polluted using a local SQLite database to store user bookmarks and search history.\n"
-        "4. Interactive GIS Map & Side-by-Side Comparison: Interactive mapping using Leaflet.js "
-        "and historical charts using Chart.js."
+    abstract_p2 = (
+        "The proposed system blends live ground-station Air Quality Index readings from the WAQI API "
+        "with forecast weather data from the Open-Meteo API onto a single dashboard. It automates "
+        "WHO exceedance warnings, displays weather-AQI correlation insights, and tracks cleanest "
+        "cities using an SQLite database. It features a coordinate distance check to validate API "
+        "calls, delivering accurate environmental analytics and health advisories."
     )
-    pdf.multi_cell(0, 6, abstract_text2)
-    pdf.ln(6)
-    
-    abstract_text3 = (
-        "The system features a robust coordinates-distance validation algorithm to bypass public "
-        "API token redirect limitations. By providing actionable health advisories tailored to the "
-        "general public, sensitive groups, outdoor activities, and home ventilation, AeroQuest "
-        "bridges the gap between complex raw atmospheric data and day-to-day health choices."
-    )
-    pdf.multi_cell(0, 6, abstract_text3)
+    pdf.multi_cell(0, 6, abstract_p2)
     
     # ----------------------------------------------------
     # PAGE 3: CHAPTER 1
@@ -219,7 +202,7 @@ def generate_pdf():
         pdf.ln(2)
 
     # ----------------------------------------------------
-    # PAGE 5: CHAPTER 2 (PART 2 - CODE EDITOR STYLE - EXACT CODE)
+    # PAGE 5: CHAPTER 2 (PART 2 - CODE EDITOR STYLE - FLASK SERVER CODE)
     # ----------------------------------------------------
     pdf.add_page()
     pdf.ln(10)
@@ -230,99 +213,64 @@ def generate_pdf():
     # Render Code Editor Box Background
     y_start = pdf.get_y()
     pdf.set_fill_color(30, 30, 30) # Dark Charcoal
-    pdf.rect(10, y_start, 190, 230, "F")
+    pdf.rect(10, y_start, 190, 160, "F")
     
-    # Set Code Font and padding (use slightly smaller size & line spacing to fit exactly on 1 page)
-    pdf.set_font("Courier", "", 7.0)
+    # Set Code Font and padding
+    pdf.set_font("Courier", "", 8)
     pdf.set_xy(12, y_start + 4)
     
     code_lines = [
-        "@app.route('/api/air-quality')",
-        "def get_air_quality():",
-        "    \"\"\"Fetches and blends air quality and current weather data for given coordinates.\"\"\"",
-        "    lat = request.args.get('latitude')",
-        "    lon = request.args.get('longitude')",
-        "    if not lat or not lon:",
-        "        return jsonify({'error': 'Latitude and Longitude are required'}), 400",
+        "from flask import Flask, render_template, request, jsonify",
+        "import requests",
+        "import database",
+        "",
+        "app = Flask(__name__)",
+        "",
+        "# Initialize the database when the app starts",
+        "database.init_db()",
+        "",
+        "@app.route('/')",
+        "def index():",
+        "    \"\"\"Serves the main SPA template.\"\"\"",
+        "    return render_template('index.html')",
+        "",
+        "@app.route('/api/search')",
+        "def search_city():",
+        "    \"\"\"Proxies city search requests to the Open-Meteo Geocoding API.\"\"\"",
+        "    query = request.args.get('q', '').strip()",
+        "    if not query:",
+        "        return jsonify({'results': []})",
+        "        ",
         "    try:",
-        "        # 1. Fetch Air Quality Data",
-        "        aqi_url = (",
-        "            f\"https://air-quality-api.open-meteo.com/v1/air-quality\"",
-        "            f\"?latitude={lat}&longitude={lon}\"",
-        "            f\"&current=us_aqi,european_aqi,pm2_5,pm10,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone,dust,uv_index\"",
-        "            f\"&hourly=us_aqi,pm2_5,pm10,nitrogen_dioxide,ozone\"",
-        "            f\"&timezone=auto\"",
-        "        )",
-        "        aqi_response = requests.get(aqi_url, timeout=10)",
-        "        aqi_response.raise_for_status()",
-        "        aqi_data = aqi_response.json()",
+        "        # Save query to database search history",
+        "        database.add_search_query(query)",
         "        ",
-        "        # 2. Fetch Weather Data",
-        "        weather_url = (",
-        "            f\"https://api.open-meteo.com/v1/forecast\"",
-        "            f\"?latitude={lat}&longitude={lon}\"",
-        "            f\"&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m\"",
-        "            f\"&timezone=auto\"",
-        "        )",
-        "        weather_response = requests.get(weather_url, timeout=10)",
-        "        weather_response.raise_for_status()",
-        "        weather_data = weather_response.json()",
+        "        # Call geocoding API",
+        "        url = f\"https://geocoding-api.open-meteo.com/v1/search?name={requests.utils.quote(query)}&count=8&language=en&format=json\"",
+        "        response = requests.get(url, timeout=10)",
+        "        response.raise_for_status()",
+        "        data = response.json()",
         "        ",
-        "        # 3. Fetch WAQI Data (Ground Station Real-time Data)",
-        "        waqi_aqi = None",
-        "        station_name = None",
-        "        waqi_token = request.args.get('token', '').strip()",
-        "        if not waqi_token: waqi_token = 'demo'",
-        "        try:",
-        "            waqi_url = f\"https://api.waqi.info/feed/geo:{lat};{lon}/?token={waqi_token}\"",
-        "            waqi_response = requests.get(waqi_url, timeout=5)",
-        "            if waqi_response.status_code == 200:",
-        "                waqi_json = waqi_response.json()",
-        "                if waqi_json.get('status') == 'ok':",
-        "                    waqi_data = waqi_json.get('data', {})",
-        "                    station_geo = waqi_data.get('city', {}).get('geo')",
-        "                    is_redirect = False",
-        "                    if station_geo and len(station_geo) >= 2:",
-        "                        s_lat, s_lon = float(station_geo[0]), float(station_geo[1])",
-        "                        if abs(float(lat) - s_lat) > 2.0 or abs(float(lon) - s_lon) > 2.0:",
-        "                            is_redirect = True",
-        "                    if not is_redirect:",
-        "                        waqi_aqi = waqi_data.get('aqi')",
-        "                        station_name = waqi_data.get('city', {}).get('name')",
-        "        except Exception:",
-        "            pass # Fail gracefully, fallback to Open-Meteo",
-        "            ",
-        "        # Combine the payloads",
-        "        result = {",
-        "            'latitude': float(lat), 'longitude': float(lon),",
-        "            'current_aqi': aqi_data.get('current', {}),",
-        "            'current_weather': weather_data.get('current', {}),",
-        "            'hourly_aqi': aqi_data.get('hourly', {}),",
-        "            'waqi_aqi': waqi_aqi, 'station_name': station_name,",
-        "            'units': {",
-        "                'aqi_units': aqi_data.get('current_units', {}),",
-        "                'weather_units': weather_data.get('current_units', {})",
-        "            }",
-        "        }",
-        "        return jsonify(result)",
+        "        results = data.get('results', [])",
+        "        return jsonify({'results': results})",
         "    except Exception as e:",
-        "        return jsonify({'error': str(e)}), 500"
+        "        return jsonify({'error': str(e), 'results': []}), 500"
     ]
     
     for line in code_lines:
         trimmed = line.strip()
         if trimmed.startswith("#") or (trimmed.startswith('"""') or trimmed.endswith('"""') and len(trimmed) > 3):
             pdf.set_text_color(16, 185, 129) # Emerald Green comments
-        elif trimmed.startswith("@") or trimmed.startswith("def ") or trimmed.startswith("return ") or trimmed.startswith("if ") or trimmed.startswith("try:") or trimmed.startswith("except"):
+        elif trimmed.startswith("@") or trimmed.startswith("def ") or trimmed.startswith("return ") or trimmed.startswith("import ") or trimmed.startswith("from ") or trimmed.startswith("if ") or trimmed.startswith("try:") or trimmed.startswith("except"):
             pdf.set_text_color(245, 158, 11) # Orange keywords
         else:
-            pdf.set_text_color(240, 240, 240) # White statements
+            pdf.set_text_color(240, 240, 240) # White statement lines
             
-        pdf.cell(0, 2.6, line, new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(0, 4.0, line, new_x="LMARGIN", new_y="NEXT")
         
     # Reset text formatting
     pdf.set_text_color(0, 0, 0)
-    pdf.set_xy(10, y_start + 235)
+    pdf.set_xy(10, y_start + 165)
 
     # ----------------------------------------------------
     # PAGE 6: CHAPTER 3
