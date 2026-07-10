@@ -219,7 +219,7 @@ def generate_pdf():
         pdf.ln(2)
 
     # ----------------------------------------------------
-    # PAGE 5: CHAPTER 2 (PART 2 - CODE EDITOR STYLE - 1 PAGE ONLY)
+    # PAGE 5: CHAPTER 2 (PART 2 - CODE EDITOR STYLE - EXACT CODE)
     # ----------------------------------------------------
     pdf.add_page()
     pdf.ln(10)
@@ -227,71 +227,102 @@ def generate_pdf():
     pdf.cell(0, 8, "2.3 CODE WITH COMMENTS (Backend API - app.py)", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(4)
     
-    # Render Code Editor Box Background (fits perfectly on 1 page)
+    # Render Code Editor Box Background
     y_start = pdf.get_y()
     pdf.set_fill_color(30, 30, 30) # Dark Charcoal
-    pdf.rect(10, y_start, 190, 160, "F")
+    pdf.rect(10, y_start, 190, 230, "F")
     
-    # Set Code Font and padding
-    pdf.set_font("Courier", "", 8)
+    # Set Code Font and padding (use slightly smaller size & line spacing to fit exactly on 1 page)
+    pdf.set_font("Courier", "", 7.0)
     pdf.set_xy(12, y_start + 4)
     
     code_lines = [
         "@app.route('/api/air-quality')",
         "def get_air_quality():",
+        "    \"\"\"Fetches and blends air quality and current weather data for given coordinates.\"\"\"",
         "    lat = request.args.get('latitude')",
         "    lon = request.args.get('longitude')",
-        "    token = request.args.get('token', '').strip() or 'demo'",
-        "    if not lat or not lon: return jsonify({'error': 'Missing coords'}), 400",
+        "    if not lat or not lon:",
+        "        return jsonify({'error': 'Latitude and Longitude are required'}), 400",
         "    try:",
-        "        # 1. Fetch Air Quality data from Open-Meteo",
-        "        aqi_url = f'https://air-quality-api.open-meteo.com/v1/air-quality?latitude={lat}&longitude={lon}&current=us_aqi,pm2_5,pm10,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone'",
-        "        aqi_data = requests.get(aqi_url, timeout=10).json()",
+        "        # 1. Fetch Air Quality Data",
+        "        aqi_url = (",
+        "            f\"https://air-quality-api.open-meteo.com/v1/air-quality\"",
+        "            f\"?latitude={lat}&longitude={lon}\"",
+        "            f\"&current=us_aqi,european_aqi,pm2_5,pm10,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone,dust,uv_index\"",
+        "            f\"&hourly=us_aqi,pm2_5,pm10,nitrogen_dioxide,ozone\"",
+        "            f\"&timezone=auto\"",
+        "        )",
+        "        aqi_response = requests.get(aqi_url, timeout=10)",
+        "        aqi_response.raise_for_status()",
+        "        aqi_data = aqi_response.json()",
         "        ",
-        "        # 2. Fetch current weather data from Open-Meteo",
-        "        weather_url = f'https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m'",
-        "        weather_data = requests.get(weather_url, timeout=10).json()",
+        "        # 2. Fetch Weather Data",
+        "        weather_url = (",
+        "            f\"https://api.open-meteo.com/v1/forecast\"",
+        "            f\"?latitude={lat}&longitude={lon}\"",
+        "            f\"&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m\"",
+        "            f\"&timezone=auto\"",
+        "        )",
+        "        weather_response = requests.get(weather_url, timeout=10)",
+        "        weather_response.raise_for_status()",
+        "        weather_data = weather_response.json()",
         "        ",
-        "        # 3. Fetch WAQI Ground-Station & validate coordinate distance",
-        "        waqi_aqi, station_name = None, None",
-        "        waqi_url = f'https://api.waqi.info/feed/geo:{lat};{lon}/?token={token}'",
-        "        waqi_res = requests.get(waqi_url, timeout=5).json()",
-        "        if waqi_res.get('status') == 'ok':",
-        "            waqi_d = waqi_res.get('data', {})",
-        "            station_geo = waqi_d.get('city', {}).get('geo')",
-        "            is_redirect = False",
-        "            if station_geo and len(station_geo) >= 2:",
-        "                s_lat, s_lon = float(station_geo[0]), float(station_geo[1])",
-        "                # Reject geolocated redirects (> 2.0 degrees distance check)",
-        "                if abs(float(lat) - s_lat) > 2.0 or abs(float(lon) - s_lon) > 2.0:",
-        "                    is_redirect = True",
-        "            if not is_redirect:",
-        "                waqi_aqi = waqi_d.get('aqi')",
-        "                station_name = waqi_d.get('city', {}).get('name')",
-        "        return jsonify({",
+        "        # 3. Fetch WAQI Data (Ground Station Real-time Data)",
+        "        waqi_aqi = None",
+        "        station_name = None",
+        "        waqi_token = request.args.get('token', '').strip()",
+        "        if not waqi_token: waqi_token = 'demo'",
+        "        try:",
+        "            waqi_url = f\"https://api.waqi.info/feed/geo:{lat};{lon}/?token={waqi_token}\"",
+        "            waqi_response = requests.get(waqi_url, timeout=5)",
+        "            if waqi_response.status_code == 200:",
+        "                waqi_json = waqi_response.json()",
+        "                if waqi_json.get('status') == 'ok':",
+        "                    waqi_data = waqi_json.get('data', {})",
+        "                    station_geo = waqi_data.get('city', {}).get('geo')",
+        "                    is_redirect = False",
+        "                    if station_geo and len(station_geo) >= 2:",
+        "                        s_lat, s_lon = float(station_geo[0]), float(station_geo[1])",
+        "                        if abs(float(lat) - s_lat) > 2.0 or abs(float(lon) - s_lon) > 2.0:",
+        "                            is_redirect = True",
+        "                    if not is_redirect:",
+        "                        waqi_aqi = waqi_data.get('aqi')",
+        "                        station_name = waqi_data.get('city', {}).get('name')",
+        "        except Exception:",
+        "            pass # Fail gracefully, fallback to Open-Meteo",
+        "            ",
+        "        # Combine the payloads",
+        "        result = {",
         "            'latitude': float(lat), 'longitude': float(lon),",
         "            'current_aqi': aqi_data.get('current', {}),",
         "            'current_weather': weather_data.get('current', {}),",
-        "            'waqi_aqi': waqi_aqi, 'station_name': station_name",
-        "        })",
+        "            'hourly_aqi': aqi_data.get('hourly', {}),",
+        "            'waqi_aqi': waqi_aqi, 'station_name': station_name,",
+        "            'units': {",
+        "                'aqi_units': aqi_data.get('current_units', {}),",
+        "                'weather_units': weather_data.get('current_units', {})",
+        "            }",
+        "        }",
+        "        return jsonify(result)",
         "    except Exception as e:",
         "        return jsonify({'error': str(e)}), 500"
     ]
     
     for line in code_lines:
         trimmed = line.strip()
-        if trimmed.startswith("#"):
+        if trimmed.startswith("#") or (trimmed.startswith('"""') or trimmed.endswith('"""') and len(trimmed) > 3):
             pdf.set_text_color(16, 185, 129) # Emerald Green comments
-        elif trimmed.startswith("@") or trimmed.startswith("def ") or trimmed.startswith("return ") or trimmed.startswith("import ") or trimmed.startswith("from ") or trimmed.startswith("if ") or trimmed.startswith("elif ") or trimmed.startswith("else:") or trimmed.startswith("try:") or trimmed.startswith("except"):
+        elif trimmed.startswith("@") or trimmed.startswith("def ") or trimmed.startswith("return ") or trimmed.startswith("if ") or trimmed.startswith("try:") or trimmed.startswith("except"):
             pdf.set_text_color(245, 158, 11) # Orange keywords
         else:
-            pdf.set_text_color(240, 240, 240) # White statement lines
+            pdf.set_text_color(240, 240, 240) # White statements
             
-        pdf.cell(0, 4.0, line, new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(0, 2.6, line, new_x="LMARGIN", new_y="NEXT")
         
     # Reset text formatting
     pdf.set_text_color(0, 0, 0)
-    pdf.set_xy(10, y_start + 165)
+    pdf.set_xy(10, y_start + 235)
 
     # ----------------------------------------------------
     # PAGE 6: CHAPTER 3
