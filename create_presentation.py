@@ -23,16 +23,17 @@ def create_deck():
         {
             "type": "title",
             "title": "AeroQuest",
-            "subtitle": "Advanced Full-Stack Dashboard for Global Atmospheric Analytics"
+            "subtitle": "Advanced Full-Stack Dashboard for Global Air Quality & Weather Analytics"
         },
-        # Slide 2: Project Vision
+        # Slide 2: Project Vision & Upgrades
         {
             "type": "content",
-            "title": "1. Project Vision & Goals",
+            "title": "1. Project Vision & Core Features",
             "bullets": [
                 "Democratize global atmospheric and air quality monitoring.",
-                "Provide an out-of-the-box system that requires NO configuration or complex API key registrations.",
-                "Fuse real-time meteorology (temperature, wind, humidity) with chemical pollutants concentrations.",
+                "Fuse real-time meteorology (wind, humidity, temp) with pollutant metrics.",
+                "Automate public health recommendations tailored for active lifestyles.",
+                "Provide an out-of-the-box system that requires no complex configurations.",
                 "Bridge the gap between raw data formats and interactive visual user dashboards."
             ]
         },
@@ -42,21 +43,22 @@ def create_deck():
             "title": "2. The Technical Stack",
             "bullets": [
                 "Backend: Python 3.13 + Flask framework.",
-                "Database Caching: SQLite3 (built-in relational database).",
+                "Database Caching: SQLite3 for favorites and search logs.",
                 "Integrations: Open-Meteo REST APIs (Geocoding & Air Quality).",
-                "Visualization: Chart.js (Interactive forecasting curves).",
-                "Mapping: Leaflet.js (Interactive GIS maps with custom pulsing marker indicators)."
+                "Ground Station Feeds: WAQI API (Real-time air pollution indexes).",
+                "Visualization: Chart.js (Historical trends) and Leaflet.js (GIS Mapping)."
             ]
         },
-        # Slide 4: Python Backend Logic
+        # Slide 4: API Redirect Fallback Logic
         {
             "type": "content",
-            "title": "3. Python Server Logic (app.py)",
+            "title": "3. WAQI API Redirect Fallback Logic",
             "bullets": [
-                "Route Proxying: Exposes custom endpoints like /api/air-quality to fetch raw payloads safely.",
-                "CORS Mitigation: Prevents cross-origin file loading errors by proxying browser calls on the server.",
-                "Error Handling: Traps exceptions during API fetches and returns user-friendly JSON payloads.",
-                "Tuned Performance: Configured with debug=False for solid production execution in isolated sessions."
+                "The Challenge: WAQI 'demo' token geolocated requests force-redirect to Shanghai.",
+                "The Solution: Implemented latitude/longitude coordinate distance verification checks.",
+                "The Logic: If returned station coordinates differ from queried coordinates by > 2.0 degrees, the redirect is flagged as hijack.",
+                "Fallback Path: Backend discards fake station data and falls back to localized Open-Meteo forecasts.",
+                "Token Settings: User input widget in sidebar footer saves custom WAQI token in localStorage."
             ]
         },
         # Slide 5: Relational SQLite Schema
@@ -70,59 +72,59 @@ def create_deck():
                 "Server-side Synchronization: Keeps user data safe and loads bookmarks dynamically on launch."
             ]
         },
-        # Slide 6: Visual Design System
+        # Slide 6: WHO Exceedance Alerts
         {
             "type": "content",
-            "title": "5. UI/UX & Glassmorphism Design",
+            "title": "5. WHO Exceedance Alert System",
             "bullets": [
-                "Modern Layout: Dark-mode by default with optional high-contrast Light Theme toggle.",
-                "Glassmorphism: Utilizes backdrop-filter: blur() with subtle semitransparent borders.",
-                "Dynamic Colors: Modifies CSS variables to color-match card glows to the active city's AQI severity.",
-                "Fluid Responsiveness: Optimized layout grids for mobile, tablet, and widescreen monitors."
+                "Analytical Engine: Calculates active health warnings when pollutants exceed WHO 24h safety standards.",
+                "Unit Conversion: Divides Carbon Monoxide (CO) concentration by 1000 to scale from micrograms to milligrams, preventing false warnings.",
+                "Ratio Math: Multiplier = Concentration / WHO safe limit.",
+                "Dynamic UI: Highlights exceedance multipliers (e.g. 'PM2.5 is 2.4x above WHO safe limit')."
             ]
         },
-        # Slide 7: GIS Leaflet Mapping
+        # Slide 7: Weather-AQI Correlation
         {
             "type": "content",
-            "title": "6. GIS Leaflet Mapping Engine",
+            "title": "6. Weather-AQI Correlation Engine",
             "bullets": [
-                "Renders interactive maps using lightweight, CDN-hosted Leaflet.js.",
-                "Features CARTO Voyager (light) and Dark Matter (dark) custom tile styling.",
-                "Applies custom HTML divIcons that pulse with colors mapped to US AQI guidelines.",
-                "Invalidates sizes on layout shifts to prevent grey layout rendering bugs."
+                "Meteorological Rules: Combines wind speed, relative humidity, and temperatures.",
+                "Stagnation Alerts: Warns users when wind speed < 10 km/h and humidity > 80% that local atmospheric conditions are trapping particulates.",
+                "Dispersion Insights: Explains how high winds (> 15 km/h) disperse chemical pollutants.",
+                "Aesthetic Cards: Dynamic insights card rendered seamlessly next to the gauge."
             ]
         },
-        # Slide 8: Interactive Charts & Analytics
+        # Slide 8: Cleanest City Leaderboard
         {
             "type": "content",
-            "title": "7. Chart.js Forecast & Analytics",
+            "title": "7. Cleanest City Leaderboard",
             "bullets": [
-                "Draws 7-day hourly analytics curves using modern HTML5 Canvas widgets.",
-                "Filters: Interactive filters for PM2.5, PM10, Ozone, and Nitrogen Dioxide.",
-                "Verdicts: Computes and displays peak values, lowest values, and average conditions.",
-                "Dual-City Overlay: Graphs comparison curves side-by-side on a single comparison grid."
+                "Dynamic Sorting: Compiles favorites list in real-time, fetching active air quality readings.",
+                "Sort Order: Automatically ranks cities ascending (cleanest to most polluted).",
+                "Premium Visuals: Uses customized ranking badges, layout transitions, and green-to-red severity indicators.",
+                "Asynchronous Grid: Automatically updates as favorites are bookmarked or removed."
             ]
         },
-        # Slide 9: Comparison Verdict Engine
+        # Slide 9: UI/UX & Interactive GIS
         {
             "type": "content",
-            "title": "8. Dual-City Comparison Engine",
+            "title": "8. UI/UX & GIS Mapping Engine",
             "bullets": [
-                "Allows users to select any two cities dynamically (City A vs City B).",
-                "Calculates clean air percentage verdicts: e.g. 'City A is 25% cleaner than City B'.",
-                "Extracts comparative metrics (CO, SO2, O3, Dust) side-by-side.",
-                "Fuses both datasets and renders dual-curves to compare forecasts at a glance."
+                "Interactive Mapping: Custom Leaflet.js canvases using dark-matter/voyager tile schemes.",
+                "Pulsing HTML divIcons: Color-coded map indicators matching the US AQI severity scale.",
+                "Dual-City Compare: Parallel Chart.js forecast curves comparing two cities side-by-side.",
+                "Responsive Grids: Fluid glassmorphism layouts with backdropped blurring effects."
             ]
         },
-        # Slide 10: Future Roadmap
+        # Slide 10: Conclusion & Next Steps
         {
             "type": "content",
-            "title": "9. Conclusion & Next Steps",
+            "title": "9. Conclusion & Project Deliverables",
             "bullets": [
-                "IoT Integrations: Supporting localized smart air-purifier and home monitor APIs.",
-                "Push Notifications: Alerting sensitive groups on sudden PM2.5 spikes.",
-                "AI Forecasting: Machine learning layers to predict AQI spikes based on wind forecasts.",
-                "Deployments: Containerizing the Flask server using Docker for cloud hosting."
+                "Success: Successfully resolved key API redirects, unit scaling issues, and database persistence.",
+                "Cloud Deployments: Deployed and live on Render at https://aeroquest-11v1.onrender.com.",
+                "IoT Roadmap: Interfacing localized indoor smart-purifier metrics with regional warnings.",
+                "AI Forecasting: Using historical datasets to predict next-day AQI trends based on wind directions."
             ]
         }
     ]
