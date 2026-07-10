@@ -24,27 +24,28 @@ def generate_pdf():
     # PAGE 1: TITLE PAGE
     # ----------------------------------------------------
     pdf.add_page()
-    pdf.set_font("Helvetica", "B", 24)
-    pdf.ln(40)
-    pdf.cell(0, 15, "MINI PROJECT REPORT", align="C", new_x="LMARGIN", new_y="NEXT")
-    pdf.ln(10)
-    pdf.set_font("Helvetica", "B", 18)
-    pdf.cell(0, 10, "AEROQUEST:", align="C", new_x="LMARGIN", new_y="NEXT")
-    pdf.cell(0, 10, "GLOBAL AIR QUALITY & WEATHER ANALYTICS HUB", align="C", new_x="LMARGIN", new_y="NEXT")
-    pdf.ln(10)
-    pdf.set_font("Helvetica", "I", 12)
-    pdf.cell(0, 8, "A Python & JavaScript Web Application for Real-Time", align="C", new_x="LMARGIN", new_y="NEXT")
-    pdf.cell(0, 8, "Atmospheric Monitoring and Health Advisories", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.set_font("Helvetica", "B", 22)
+    pdf.ln(20)
+    pdf.cell(0, 12, "MINI PROJECT REPORT", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(5)
+    pdf.set_font("Helvetica", "B", 16)
+    pdf.cell(0, 8, "AEROQUEST:", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 8, "GLOBAL AIR QUALITY & WEATHER ANALYTICS HUB", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(5)
+    pdf.set_font("Helvetica", "I", 11)
+    pdf.cell(0, 6, "A Python & JavaScript Web Application for Real-Time", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 6, "Atmospheric Monitoring and Health Advisories", align="C", new_x="LMARGIN", new_y="NEXT")
     
-    pdf.ln(40)
-    pdf.set_font("Helvetica", "", 12)
-    pdf.cell(0, 8, "Submitted in partial fulfilment of the requirements for", align="C", new_x="LMARGIN", new_y="NEXT")
-    pdf.set_font("Helvetica", "B", 12)
-    pdf.cell(0, 8, "Course: 25BEphy104 (Python Programming)", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(20)
+    pdf.set_font("Helvetica", "", 11)
+    pdf.cell(0, 6, "Submitted in partial fulfilment of the requirements for", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.set_font("Helvetica", "B", 11)
+    pdf.cell(0, 6, "Course: 25BEphy104 (Python Programming)", align="C", new_x="LMARGIN", new_y="NEXT")
     
     pdf.ln(15)
     pdf.set_font("Helvetica", "", 11)
     pdf.cell(0, 6, "Submitted by:", align="C", new_x="LMARGIN", new_y="NEXT")
+    
     pdf.set_font("Helvetica", "B", 10)
     students = [
         "SHIVARAJ - 25SUUBECS1323",
@@ -56,11 +57,11 @@ def generate_pdf():
     for s in students:
         pdf.cell(0, 5, s, align="C", new_x="LMARGIN", new_y="NEXT")
     
-    pdf.ln(30)
-    pdf.set_font("Helvetica", "", 12)
-    pdf.cell(0, 8, "Department of Computer Science and Engineering", align="C", new_x="LMARGIN", new_y="NEXT")
-    pdf.cell(0, 8, "[University / College Name]", align="C", new_x="LMARGIN", new_y="NEXT")
-    pdf.cell(0, 8, "2026", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(15)
+    pdf.set_font("Helvetica", "", 11)
+    pdf.cell(0, 6, "Department of Computer Science and Engineering", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 6, "[University / College Name]", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 6, "2026", align="C", new_x="LMARGIN", new_y="NEXT")
     
     # ----------------------------------------------------
     # PAGE 2: ABSTRACT
@@ -218,7 +219,7 @@ def generate_pdf():
         pdf.ln(2)
 
     # ----------------------------------------------------
-    # PAGE 5: CHAPTER 2 (PART 2 - CODE)
+    # PAGE 5: CHAPTER 2 (PART 2 - CODE EDITOR STYLE)
     # ----------------------------------------------------
     pdf.add_page()
     pdf.ln(10)
@@ -226,77 +227,43 @@ def generate_pdf():
     pdf.cell(0, 8, "2.3 CODE WITH COMMENTS (Backend API - app.py)", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(4)
     
-    # Render Code Editor Box Background
+    # Read the actual local app.py file
+    with open("app.py", "r", encoding="utf-8") as f:
+        code_lines = [line.rstrip('\n') for line in f.readlines()]
+        
+    # Render Code Editor Box Background for the first page
     y_start = pdf.get_y()
-    pdf.set_fill_color(30, 30, 30) # Dark Charcoal background
-    pdf.rect(10, y_start, 190, 160, "F")
+    pdf.set_fill_color(30, 30, 30) # Dark Charcoal
+    pdf.rect(10, y_start, 190, 260 - y_start, "F")
     
     # Set Code Font and padding
-    pdf.set_font("Courier", "", 8)
+    pdf.set_font("Courier", "", 7.5)
     pdf.set_xy(12, y_start + 4)
-    pdf.set_text_color(220, 220, 220)
-    
-    code_lines = [
-        "from flask import Flask, render_template, request, jsonify",
-        "import requests, database",
-        "",
-        "# --- Fetch API Endpoint ---",
-        "@app.route('/api/air-quality')",
-        "def get_air_quality():",
-        "    lat = request.args.get('latitude')",
-        "    lon = request.args.get('longitude')",
-        "    waqi_token = request.args.get('token', '').strip() or 'demo'",
-        "    if not lat or not lon: return jsonify({'error': 'Missing coordinates'}), 400",
-        "    try:",
-        "        # 1. Fetch Air Quality data from Open-Meteo",
-        "        aqi_url = f'https://air-quality-api.open-meteo.com/v1/air-quality?latitude={lat}&longitude={lon}&current=us_aqi,pm2_5,pm10,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone'",
-        "        aqi_data = requests.get(aqi_url, timeout=10).json()",
-        "        ",
-        "        # 2. Fetch current weather data from Open-Meteo",
-        "        weather_url = f'https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m'",
-        "        weather_data = requests.get(weather_url, timeout=10).json()",
-        "        ",
-        "        # 3. Fetch WAQI Ground-Station with coordinate distance validation",
-        "        waqi_aqi, station_name = None, None",
-        "        waqi_url = f'https://api.waqi.info/feed/geo:{lat};{lon}/?token={waqi_token}'",
-        "        waqi_response = requests.get(waqi_url, timeout=5)",
-        "        if waqi_response.status_code == 200:",
-        "            waqi_json = waqi_response.json()",
-        "            if waqi_json.get('status') == 'ok':",
-        "                waqi_d = waqi_json.get('data', {})",
-        "                station_geo = waqi_d.get('city', {}).get('geo')",
-        "                is_redirect = False",
-        "                if station_geo and len(station_geo) >= 2:",
-        "                    s_lat, s_lon = float(station_geo[0]), float(station_geo[1])",
-        "                    if abs(float(lat) - s_lat) > 2.0 or abs(float(lon) - s_lon) > 2.0:",
-        "                        is_redirect = True",
-        "                if not is_redirect:",
-        "                    waqi_aqi = waqi_d.get('aqi')",
-        "                    station_name = waqi_d.get('city', {}).get('name')",
-        "        return jsonify({",
-        "            'latitude': float(lat), 'longitude': float(lon),",
-        "            'current_aqi': aqi_data.get('current', {}),",
-        "            'current_weather': weather_data.get('current', {}),",
-        "            'waqi_aqi': waqi_aqi, 'station_name': station_name",
-        "        })",
-        "    except Exception as e:",
-        "        return jsonify({'error': str(e)}), 500"
-    ]
     
     for line in code_lines:
-        if line.strip().startswith("#"):
+        # Check for page overflow
+        if pdf.get_y() > 250:
+            pdf.add_page()
+            # Draw background for the overflow page
+            pdf.set_fill_color(30, 30, 30)
+            pdf.rect(10, 10, 190, 250, "F")
+            pdf.set_font("Courier", "", 7.5)
+            pdf.set_xy(12, 14)
+            
+        # Highlight comments green, structure/keywords orange, normal code white
+        trimmed = line.strip()
+        if trimmed.startswith("#") or (trimmed.startswith('"""') or trimmed.endswith('"""') and len(trimmed) > 3):
             pdf.set_text_color(16, 185, 129) # Emerald Green comments
-        elif line.strip().startswith("@") or line.strip().startswith("def") or line.strip().startswith("return") or line.strip().startswith("import") or line.strip().startswith("from"):
+        elif trimmed.startswith("@") or trimmed.startswith("def ") or trimmed.startswith("return ") or trimmed.startswith("import ") or trimmed.startswith("from ") or trimmed.startswith("if ") or trimmed.startswith("elif ") or trimmed.startswith("else:") or trimmed.startswith("try:") or trimmed.startswith("except"):
             pdf.set_text_color(245, 158, 11) # Orange keywords
         else:
-            pdf.set_text_color(240, 240, 240) # White statements
-        pdf.cell(0, 3.8, line, new_x="LMARGIN", new_y="NEXT")
-    
-    # Reset text color
+            pdf.set_text_color(240, 240, 240) # White statement lines
+            
+        pdf.cell(0, 3.2, line, new_x="LMARGIN", new_y="NEXT")
+        
+    # Reset text formatting
     pdf.set_text_color(0, 0, 0)
-    pdf.set_xy(10, y_start + 165)
-    pdf.set_font("Courier", "", 8)
-    
+
     # ----------------------------------------------------
     # PAGE 6: CHAPTER 3
     # ----------------------------------------------------
@@ -316,8 +283,7 @@ def generate_pdf():
         "out over 120 asynchronous geocoded requests. The data blending layer successfully "
         "bypassed the WAQI API demo token redirect limitations for all queries outside Shanghai, "
         "falling back to Open-Meteo's localized models with 100% stability. "
-        "The WHO warning system successfully converted units (such as Carbon Monoxide divided by 1000) "
-        "to prevent false alerts."
+        "The WHO warning system successfully converted units (such as dividing Carbon Monoxide readings by 1000 to convert from micrograms to milligrams) to prevent false alerts."
     )
     pdf.multi_cell(0, 6, res_text)
     pdf.ln(6)
