@@ -11,7 +11,7 @@ def create_deck():
     prs.slide_width = Inches(13.333)
     prs.slide_height = Inches(7.5)
     
-    # Custom Color System (High-Tech Theme)
+    # Custom Color System (High-Tech Dark Theme)
     DARK_BG = RGBColor(9, 13, 22)       # App deep dark background
     WHITE = RGBColor(243, 244, 246)     # Primary text
     EMERALD = RGBColor(16, 185, 129)    # Emerald Green accent
@@ -23,9 +23,14 @@ def create_deck():
         {
             "type": "title",
             "title": "AeroQuest",
-            "subtitle": "Advanced Full-Stack Dashboard for Global Air Quality & Weather Analytics"
+            "subtitle": "Advanced PYTHON & Flask Web Application for Global Air Quality & Weather Analytics",
+            "students": [
+                "SHIVARAJ (25SUUBECS1323) | SHIVAKUMAR KH (25SUUBECS1319)",
+                "SHREYAS AG (25SUUBECS1351) | SHREYAS HS (25SUUBECS1354)",
+                "SHREYAS SUVIGYA (25SUUBECS1361)"
+            ]
         },
-        # Slide 2: Project Vision & Upgrades
+        # Slide 2: Project Vision & Core Features
         {
             "type": "content",
             "title": "1. Project Vision & Core Features",
@@ -42,7 +47,8 @@ def create_deck():
             "type": "content",
             "title": "2. The Technical Stack",
             "bullets": [
-                "Backend: Python 3.13 + Flask framework.",
+                "Core Language: PYTHON 3.13.",
+                "Backend Controller: Flask microframework.",
                 "Database Caching: SQLite3 for favorites and search logs.",
                 "Integrations: Open-Meteo REST APIs (Geocoding & Air Quality).",
                 "Ground Station Feeds: WAQI API (Real-time air pollution indexes).",
@@ -142,7 +148,7 @@ def create_deck():
         
         # RENDER TITLE SLIDE
         if data["type"] == "title":
-            title_box = slide.shapes.add_textbox(Inches(1.5), Inches(2.2), Inches(10.33), Inches(3))
+            title_box = slide.shapes.add_textbox(Inches(1.0), Inches(1.5), Inches(11.33), Inches(4.5))
             tf = title_box.text_frame
             tf.word_wrap = True
             
@@ -157,10 +163,28 @@ def create_deck():
             p2 = tf.add_paragraph()
             p2.text = data["subtitle"]
             p2.font.name = "Inter"
-            p2.font.size = Pt(22)
+            p2.font.size = Pt(20)
             p2.font.color.rgb = EMERALD
             p2.alignment = PP_ALIGN.CENTER
-            p2.space_before = Pt(20)
+            p2.space_before = Pt(15)
+            
+            p3 = tf.add_paragraph()
+            p3.text = "Submitted by:"
+            p3.font.name = "Inter"
+            p3.font.size = Pt(14)
+            p3.font.color.rgb = MUTED_GRAY
+            p3.alignment = PP_ALIGN.CENTER
+            p3.space_before = Pt(30)
+            
+            for s in data["students"]:
+                ps = tf.add_paragraph()
+                ps.text = s
+                ps.font.name = "Inter"
+                ps.font.size = Pt(14)
+                ps.font.bold = True
+                ps.font.color.rgb = WHITE
+                ps.alignment = PP_ALIGN.CENTER
+                ps.space_before = Pt(5)
             
         # RENDER CONTENT SLIDES
         else:
@@ -181,6 +205,7 @@ def create_deck():
             
             for idx, bullet in enumerate(data["bullets"]):
                 p_bullet = tf_content.add_paragraph() if idx > 0 else tf_content.paragraphs[0]
+                # Highlight PYTHON in bullets
                 p_bullet.text = "•  " + bullet
                 p_bullet.font.name = "Inter"
                 p_bullet.font.size = Pt(20)
