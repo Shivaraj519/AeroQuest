@@ -166,15 +166,16 @@ def create_deck():
                 "Provides tooltips displaying real-time metrics when clicked."
             ]
         },
-        # Slide 14: Chart.js Comparison trends
+        # Slide 14: Coding - Logical Steps
         {
             "type": "content",
-            "title": "13. Chart.js Comparison Trends",
+            "title": "13. Coding - Logical Steps",
             "bullets": [
-                "Allows users to load and compare two cities side-by-side.",
-                "Interactive line charts render 24-hour pollutant and AQI trends.",
-                "Helps users analyze temporal variations (day vs night pollution patterns).",
-                "Chart configurations scale dynamically based on selected units."
+                "1. Read the city name searched by the user.",
+                "2. Call Geocoding API to get the city coordinates.",
+                "3. Fetch weather and air quality values using coordinates.",
+                "4. Calculate safety guidelines based on WHO pollutant limits.",
+                "5. Save bookmarked cities to SQLite and sort on the leaderboard."
             ]
         },
         # Slide 15: Results & Performance Analysis

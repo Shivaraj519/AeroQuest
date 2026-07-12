@@ -32,7 +32,7 @@ def generate_pdf():
     pdf.cell(0, 8, "AEROQUEST:", align="C", new_x="LMARGIN", new_y="NEXT")
     pdf.cell(0, 8, "GLOBAL AIR QUALITY & WEATHER ANALYTICS HUB", align="C", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(5)
-    pdf.set_font("Helvetica", "BI", 12)  # Bold-Italic to highlight PYTHON
+    pdf.set_font("Helvetica", "BI", 12)
     pdf.cell(0, 6, "A PYTHON Web Application for Real-Time", align="C", new_x="LMARGIN", new_y="NEXT")
     pdf.set_font("Helvetica", "I", 11)
     pdf.cell(0, 6, "Atmospheric Monitoring and Health Advisories", align="C", new_x="LMARGIN", new_y="NEXT")
@@ -94,13 +94,12 @@ def generate_pdf():
     pdf.multi_cell(0, 6, abstract_p2)
     
     # ----------------------------------------------------
-    # PAGE 3: CHAPTER 1
+    # PAGE 3: CHAPTER 1 - INTRODUCTION & OBJECTIVES
     # ----------------------------------------------------
     pdf.add_page()
     pdf.ln(10)
     pdf.set_font("Helvetica", "B", 16)
-    pdf.cell(0, 10, "CHAPTER 1", align="C", new_x="LMARGIN", new_y="NEXT")
-    pdf.set_font("Helvetica", "B", 14)
+    pdf.cell(0, 8, "CHAPTER 1", align="C", new_x="LMARGIN", new_y="NEXT")
     pdf.cell(0, 10, "OBJECTIVES, ABSTRACT & INTRODUCTION", align="C", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(10)
     
@@ -124,9 +123,18 @@ def generate_pdf():
     pdf.set_font("Helvetica", "B", 12)
     pdf.cell(0, 8, "1.2 ABSTRACT", new_x="LMARGIN", new_y="NEXT")
     pdf.set_font("Helvetica", "", 11)
-    pdf.multi_cell(0, 6, "Refer to the Abstract section detailed on Page 2.")
+    pdf.multi_cell(0, 6, "Refer to the Abstract section detailed on Page 2 of this report document.")
     
-    pdf.ln(6)
+    # ----------------------------------------------------
+    # PAGE 4: CHAPTER 1 (CONTINUED) - INTRODUCTION
+    # ----------------------------------------------------
+    pdf.add_page()
+    pdf.ln(10)
+    pdf.set_font("Helvetica", "B", 16)
+    pdf.cell(0, 8, "CHAPTER 1", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 10, "OBJECTIVES, ABSTRACT & INTRODUCTION (CONTD.)", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(10)
+    
     pdf.set_font("Helvetica", "B", 12)
     pdf.cell(0, 8, "1.3 INTRODUCTION", new_x="LMARGIN", new_y="NEXT")
     pdf.set_font("Helvetica", "", 11)
@@ -154,13 +162,12 @@ def generate_pdf():
     pdf.multi_cell(0, 6, intro2)
 
     # ----------------------------------------------------
-    # PAGE 4: CHAPTER 2 (PART 1)
+    # PAGE 5: CHAPTER 2 - PROPOSED WORK & ARCHITECTURE
     # ----------------------------------------------------
     pdf.add_page()
     pdf.ln(10)
     pdf.set_font("Helvetica", "B", 16)
-    pdf.cell(0, 10, "CHAPTER 2", align="C", new_x="LMARGIN", new_y="NEXT")
-    pdf.set_font("Helvetica", "B", 14)
+    pdf.cell(0, 8, "CHAPTER 2", align="C", new_x="LMARGIN", new_y="NEXT")
     pdf.cell(0, 10, "ALGORITHM, SYSTEM ARCHITECTURE & CODE", align="C", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(10)
     
@@ -184,8 +191,17 @@ def generate_pdf():
         "  - WAQI API: Gathers real-time ground-station AQI metrics."
     )
     pdf.multi_cell(0, 6, arch_text)
+
+    # ----------------------------------------------------
+    # PAGE 6: CHAPTER 2 (CONTINUED) - ALGORITHM
+    # ----------------------------------------------------
+    pdf.add_page()
+    pdf.ln(10)
+    pdf.set_font("Helvetica", "B", 16)
+    pdf.cell(0, 8, "CHAPTER 2", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 10, "ALGORITHM, SYSTEM ARCHITECTURE & CODE (CONTD.)", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(10)
     
-    pdf.ln(6)
     pdf.set_font("Helvetica", "B", 12)
     pdf.cell(0, 8, "2.2 ALGORITHM (STEP-WISE LOGIC)", new_x="LMARGIN", new_y="NEXT")
     pdf.set_font("Helvetica", "", 11)
@@ -203,10 +219,15 @@ def generate_pdf():
         pdf.ln(2)
 
     # ----------------------------------------------------
-    # PAGE 5: CHAPTER 2 (PART 2 - CODE EDITOR STYLE - FLASK SERVER CODE)
+    # PAGE 7: CHAPTER 2 (CONTINUED) - CODE ON 1 PAGE (FLASK SETUP & SEARCH CODE Snippet)
     # ----------------------------------------------------
     pdf.add_page()
     pdf.ln(10)
+    pdf.set_font("Helvetica", "B", 16)
+    pdf.cell(0, 8, "CHAPTER 2", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 10, "ALGORITHM, SYSTEM ARCHITECTURE & CODE (CONTD.)", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(10)
+    
     pdf.set_font("Helvetica", "B", 12)
     pdf.cell(0, 8, "2.3 CODE WITH COMMENTS (Backend API - app.py)", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(4)
@@ -274,13 +295,12 @@ def generate_pdf():
     pdf.set_xy(10, y_start + 165)
 
     # ----------------------------------------------------
-    # PAGE 6: CHAPTER 3
+    # PAGE 8: CHAPTER 3 - RESULTS
     # ----------------------------------------------------
     pdf.add_page()
     pdf.ln(10)
     pdf.set_font("Helvetica", "B", 16)
-    pdf.cell(0, 10, "CHAPTER 3", align="C", new_x="LMARGIN", new_y="NEXT")
-    pdf.set_font("Helvetica", "B", 14)
+    pdf.cell(0, 8, "CHAPTER 3", align="C", new_x="LMARGIN", new_y="NEXT")
     pdf.cell(0, 10, "RESULTS & CONCLUSION", align="C", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(10)
     
@@ -318,8 +338,17 @@ def generate_pdf():
         pdf.cell(40, 8, row[1], border=1)
         pdf.cell(40, 8, row[2], border=1)
         pdf.cell(30, 8, row[3], border=1, new_x="LMARGIN", new_y="NEXT")
-        
-    pdf.ln(8)
+
+    # ----------------------------------------------------
+    # PAGE 9: CHAPTER 3 (CONTINUED) - CONCLUSION
+    # ----------------------------------------------------
+    pdf.add_page()
+    pdf.ln(10)
+    pdf.set_font("Helvetica", "B", 16)
+    pdf.cell(0, 8, "CHAPTER 3", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 10, "RESULTS & CONCLUSION (CONTD.)", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(10)
+    
     pdf.set_font("Helvetica", "B", 12)
     pdf.cell(0, 8, "3.2 CONCLUSION", new_x="LMARGIN", new_y="NEXT")
     pdf.set_font("Helvetica", "", 11)
@@ -335,6 +364,31 @@ def generate_pdf():
     )
     pdf.multi_cell(0, 6, concl)
     
+    # ----------------------------------------------------
+    # PAGE 10: BIBLIOGRAPHY & REFERENCES (LAST PAGE)
+    # ----------------------------------------------------
+    pdf.add_page()
+    pdf.ln(10)
+    pdf.set_font("Helvetica", "B", 16)
+    pdf.cell(0, 10, "BIBLIOGRAPHY & REFERENCES", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(10)
+    
+    pdf.set_font("Helvetica", "B", 12)
+    pdf.cell(0, 8, "REFERENCES", new_x="LMARGIN", new_y="NEXT")
+    pdf.set_font("Helvetica", "", 11)
+    
+    refs = [
+        "[1] Flask Web Development: Developing Web Applications with Python, Miguel Grinberg, O'Reilly Media, 2018.",
+        "[2] SQLite Database System: Design and Implementation, Siberschatz, Korth and Sudarshan, McGraw-Hill, 2010.",
+        "[3] Open-Meteo Atmospheric Forecast Models API Documentation. https://open-meteo.com/",
+        "[4] World Air Quality Index (WAQI) Project API Resource Feeds. https://aqicn.org/api/",
+        "[5] Leaflet.js - An Open-Source JavaScript Library for Mobile-Friendly Interactive Maps. https://leafletjs.com/",
+        "[6] Chart.js - Simple yet Flexible JavaScript Charting for Designers and Developers. https://www.chartjs.org/"
+    ]
+    for r in refs:
+        pdf.multi_cell(0, 6, r)
+        pdf.ln(3)
+        
     pdf.output("AeroQuest_Project_Report.pdf")
     print("PDF Report generated successfully as AeroQuest_Project_Report.pdf")
 
