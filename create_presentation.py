@@ -132,6 +132,13 @@ def create_deck():
                 "IoT Roadmap: Interfacing localized indoor smart-purifier metrics with regional warnings.",
                 "AI Forecasting: Using historical datasets to predict next-day AQI trends based on wind directions."
             ]
+        },
+        # Slide 11: Thank You Page
+        {
+            "type": "thankyou",
+            "title": "THANK YOU",
+            "quote": '"The joy of coding Python should be in seeing short, clean, readable classes that express a lot of action in a small amount of clear code."',
+            "author": "— Guido van Rossum (Creator of Python)"
         }
     ]
     
@@ -185,6 +192,37 @@ def create_deck():
                 ps.font.color.rgb = WHITE
                 ps.alignment = PP_ALIGN.CENTER
                 ps.space_before = Pt(5)
+                
+        # RENDER THANK YOU SLIDE
+        elif data["type"] == "thankyou":
+            thank_box = slide.shapes.add_textbox(Inches(1.5), Inches(2.0), Inches(10.33), Inches(4.0))
+            tf = thank_box.text_frame
+            tf.word_wrap = True
+            
+            p = tf.paragraphs[0]
+            p.text = data["title"]
+            p.font.name = "Outfit"
+            p.font.size = Pt(60)
+            p.font.bold = True
+            p.font.color.rgb = EMERALD
+            p.alignment = PP_ALIGN.CENTER
+            
+            p_quote = tf.add_paragraph()
+            p_quote.text = data["quote"]
+            p_quote.font.name = "Inter"
+            p_quote.font.size = Pt(20)
+            p_quote.font.italic = True
+            p_quote.font.color.rgb = WHITE
+            p_quote.alignment = PP_ALIGN.CENTER
+            p_quote.space_before = Pt(30)
+            
+            p_author = tf.add_paragraph()
+            p_author.text = data["author"]
+            p_author.font.name = "Inter"
+            p_author.font.size = Pt(16)
+            p_author.font.color.rgb = MUTED_GRAY
+            p_author.alignment = PP_ALIGN.CENTER
+            p_author.space_before = Pt(10)
             
         # RENDER CONTENT SLIDES
         else:
@@ -205,7 +243,6 @@ def create_deck():
             
             for idx, bullet in enumerate(data["bullets"]):
                 p_bullet = tf_content.add_paragraph() if idx > 0 else tf_content.paragraphs[0]
-                # Highlight PYTHON in bullets
                 p_bullet.text = "•  " + bullet
                 p_bullet.font.name = "Inter"
                 p_bullet.font.size = Pt(20)
